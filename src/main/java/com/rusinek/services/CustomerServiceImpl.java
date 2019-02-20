@@ -2,7 +2,9 @@ package com.rusinek.services;
 
 import com.rusinek.api.v1.mapper.CustomerMapper;
 import com.rusinek.api.v1.model.CustomerDTO;
+import com.rusinek.domain.Customer;
 import com.rusinek.repositories.CustomerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,9 +16,13 @@ public class CustomerServiceImpl implements CustomerService  {
     private CustomerRepository customerRepository;
     private CustomerMapper customerMapper;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository, CustomerMapper customerMapper) {
-        this.customerRepository = customerRepository;
+    @Autowired
+    public void setCustomerMapper(CustomerMapper customerMapper) {
         this.customerMapper = customerMapper;
+    }
+    @Autowired
+    public void setCustomerRepository(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
     }
 
     @Override
@@ -37,5 +43,19 @@ public class CustomerServiceImpl implements CustomerService  {
         return customerRepository.findById(id)
                 .map(customerMapper::customerToCustomerDTO)
                 .orElseThrow(RuntimeException::new); // todo better ex handling
+    }
+
+    @Override
+    public CustomerDTO createNewCustomer(CustomerDTO customerDTO) {
+
+        Customer customer = customerMapper.customerDtoToCustomer(customerDTO);
+
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerDTO returnDTO = customerMapper.customerToCustomerDTO(savedCustomer);
+
+        returnDTO.setCustomerUrl("/api/v1/customer/" + savedCustomer.getId());
+
+        return returnDTO;
     }
 }

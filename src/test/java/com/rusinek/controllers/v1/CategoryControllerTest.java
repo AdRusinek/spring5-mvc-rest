@@ -77,4 +77,6 @@ public class CategoryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", equalTo(NAME)));
     }
+
+
 }
