@@ -3,9 +3,12 @@ package com.rusinek.controllers.v1;
 import com.rusinek.api.v1.model.VendorDTO;
 import com.rusinek.api.v1.model.VendorListDTO;
 import com.rusinek.services.VendorService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+@Api(description = "This is my Vendor Controller")
 @RestController
 @RequestMapping(VendorController.BASE_URL)
 public class VendorController {
@@ -18,18 +21,21 @@ public class VendorController {
         this.vendorService = vendorService;
     }
 
+    @ApiOperation(value = "This will get list of Vendors", notes = "Notes")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public VendorListDTO getVendorList(){
         return vendorService.getAllVendors();
     }
 
+    @ApiOperation(value = "This will get Vendor using id")
     @GetMapping({"/{id}"})
     @ResponseStatus(HttpStatus.OK)
     public VendorDTO getVendorById(@PathVariable Long id){
         return vendorService.getVendorById(id);
     }
 
+    @ApiOperation(value = "This will create new Customer")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public VendorDTO createNewVendor(@RequestBody VendorDTO vendorDTO){

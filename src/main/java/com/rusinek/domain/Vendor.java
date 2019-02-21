@@ -1,5 +1,6 @@
 package com.rusinek.domain;
 
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 import javax.persistence.Entity;
