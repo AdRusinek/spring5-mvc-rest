@@ -13,15 +13,11 @@ import java.util.stream.Collectors;
 @Service
 public class CustomerServiceImpl implements CustomerService  {
 
-    private CustomerRepository customerRepository;
-    private CustomerMapper customerMapper;
+    private final CustomerMapper customerMapper;
+    private final CustomerRepository customerRepository;
 
-    @Autowired
-    public void setCustomerMapper(CustomerMapper customerMapper) {
+    public CustomerServiceImpl(CustomerMapper customerMapper, CustomerRepository customerRepository) {
         this.customerMapper = customerMapper;
-    }
-    @Autowired
-    public void setCustomerRepository(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
 
@@ -57,5 +53,41 @@ public class CustomerServiceImpl implements CustomerService  {
         returnDTO.setCustomerUrl("/api/v1/customer/" + savedCustomer.getId());
 
         return returnDTO;
+    }
+
+    private CustomerDTO saveAndReturnDTO(Customer customer) {
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerDTO returnDto = customerMapper.customerToCustomerDTO(savedCustomer);
+
+        returnDto.setCustomerUrl("/api/v1/customer/" + savedCustomer.getId());
+
+        return returnDto;
+    }
+
+    @Override
+    public CustomerDTO saveCustomerByDTO(Long id, CustomerDTO customerDTO) {
+        Customer customer = customerMapper.customerDtoToCustomer(customerDTO);
+        customer.setId(id);
+
+        return saveAndReturnDTO(customer);
+    }
+
+    @Override
+    public CustomerDTO patchCustomer(Long id, CustomerDTO customerDTO) {
+        return customerRepository.findById(id)
+                .map(customer -> {
+                    if(customerDTO.getFirstName() != null) {
+                        customer.setFirstName(customerDTO.getFirstName());
+                    }
+
+                    if(customerDTO.getLastName() != null) {
+                        customer.setLastName(customerDTO.getLastName());
+                    }
+                    CustomerDTO returnDTO = customerMapper.customerToCustomerDTO(customerRepository.save(customer));
+                    returnDTO.setCustomerUrl("/api/v1/customer/" + id);
+
+                    return returnDTO;
+                }).orElseThrow(RuntimeException::new);  // todo impl better exc handling
     }
 }
